@@ -40,7 +40,7 @@ namespace gr {
     class GFDM_API improved_sync_algorithm_kernel_cc
     {
     public:
-      improved_sync_algorithm_kernel_cc(int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, int max_ninput_size);
+      improved_sync_algorithm_kernel_cc(int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, int max_ninput_size, float thr_acorr);
       ~improved_sync_algorithm_kernel_cc();
 
       int detect_frame_start(const gr_complex *p_in, int ninput_size);
@@ -67,6 +67,7 @@ namespace gr {
       float d_false_alarm_prob_factor;
       int d_n_subcarriers;
       int d_cp_len;
+      float d_thr_acorr;
       gr_complex* d_preamble;
       gr_complex* d_p_in_buffer;
       gr_complex* d_auto_corr_vals;

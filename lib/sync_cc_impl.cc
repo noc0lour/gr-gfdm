@@ -29,24 +29,25 @@ namespace gr {
   namespace gfdm {
 
     sync_cc::sptr
-    sync_cc::make(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble,
+    sync_cc::make(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble, float thr_acorr,
                   const std::string &gfdm_tag_key)
     {
       return gnuradio::get_initial_sptr
-        (new sync_cc_impl(n_subcarriers, cp_length, frame_len, preamble, gfdm_tag_key));
+        (new sync_cc_impl(n_subcarriers, cp_length, frame_len, preamble, thr_acorr, gfdm_tag_key));
     }
 
     /*
      * The private constructor
      */
-    sync_cc_impl::sync_cc_impl(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble,
+    sync_cc_impl::sync_cc_impl(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble, float thr_acorr,
                                const std::string &gfdm_tag_key)
       : gr::block("sync_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
       d_block_len(frame_len),
       d_gfdm_tag_key(gfdm_tag_key),
-      d_is_at_frame_start(false)
+      d_is_at_frame_start(false),
+      d_thr_acorr(thr_acorr)
 
     {
       // Make sure to have only multiple of( one GFDM Block + Sync) in input
@@ -54,7 +55,7 @@ namespace gr {
       set_history(n_subcarriers + 1);
 
       std::cout << "preamble: " << d_known_preamble.size() << std::endl;
-      d_kernel = new improved_sync_algorithm_kernel_cc(n_subcarriers, cp_length, preamble, output_multiple() + output_multiple() / 2);
+      d_kernel = new improved_sync_algorithm_kernel_cc(n_subcarriers, cp_length, preamble, output_multiple() + output_multiple() / 2,d_thr_acorr);
     }
 
     /*
@@ -120,7 +121,7 @@ namespace gr {
       memcpy(outbuf, inbuf, sizeof(gr_complex) * d_block_len);
       add_item_tag(0, nitems_written(0),
                    pmt::string_to_symbol(d_gfdm_tag_key),
-                   pmt::from_long(d_sync_fft_len));
+                   pmt::from_long(d_block_len));
     }
 
   } /* namespace gfdm */

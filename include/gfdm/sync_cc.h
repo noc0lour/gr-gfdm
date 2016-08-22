@@ -30,9 +30,9 @@ namespace gr {
   namespace gfdm {
 
     /*!
-     * \brief <+description of block+>
+     * \brief GFDM - Framesynchronization based on modified Schmidl & Cox Preamble
      * \ingroup gfdm
-     *
+     *  
      */
     class GFDM_API sync_cc : virtual public gr::block
     {
@@ -41,13 +41,14 @@ namespace gr {
 
       /*!
        * \brief Return a shared_ptr to a new instance of gfdm::sync_cc.
-       *
-       * To avoid accidental use of raw pointers, gfdm::sync_cc's
-       * constructor is in a private implementation
-       * class. gfdm::sync_cc::make is the public interface for
-       * creating new instances.
+       * \param n_subcarriers number of subcarriers in GFDM frame and synchronization symbol
+       * \param cp_length length of cyclic prefix in number of samples
+       * \param frame_len resulting frame length (timeslots*subcarriers + cp_len + 2*subcarriers)
+       * \param preamble a vector of length (2*subcarriers) containing the preamble of the sender
+       * \param thr_acorr a float value [0,1] representing minimal autocorrelation energy to detect a frame
+       * \param gfdm_tag_key a string which represents the sync tag name
        */
-      static sptr make(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble,
+      static sptr make(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble, float thr_acorr,
                        const std::string &gfdm_tag_key = "gfdm_block");
     };
 

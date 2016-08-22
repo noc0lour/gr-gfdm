@@ -37,8 +37,8 @@
 namespace gr {
   namespace gfdm {
 
-    improved_sync_algorithm_kernel_cc::improved_sync_algorithm_kernel_cc(int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, int max_ninput_size):
-      d_n_subcarriers(n_subcarriers), d_cp_len(cp_len), d_buffer_len(2 * n_subcarriers), d_max_ninput_size(max_ninput_size)
+    improved_sync_algorithm_kernel_cc::improved_sync_algorithm_kernel_cc(int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, int max_ninput_size, float thr_acorr):
+      d_n_subcarriers(n_subcarriers), d_cp_len(cp_len), d_buffer_len(2 * n_subcarriers), d_max_ninput_size(max_ninput_size), d_thr_acorr(thr_acorr)
     {
       // perform initial checks!
       if(preamble.size() != 2 * n_subcarriers){
@@ -142,14 +142,15 @@ namespace gr {
       const bool is_tail_case = w_nm > window_size;
       const int acorr_nm = w_nm + search_window_head;
       const int p_offset = acorr_nm - (d_buffer_len + d_n_subcarriers);
+      const gr_complex max_auto_corr_val = d_auto_corr_vals[acorr_nm];
+      const float max_auto_corr_energy =  std::real(max_auto_corr_val*std::conj(max_auto_corr_val));
 
 //      const int p_nm = acorr_nm - d_buffer_len;
 //      const float max_abs_auto_corr_val = d_abs_auto_corr_vals[acorr_nm];
 
       int rnc = -2 * ninput_size;
-      if(!is_tail_case){
+      if(!is_tail_case && max_auto_corr_energy > d_thr_acorr){
         // derive CFO from correlation peak!
-        const gr_complex max_auto_corr_val = d_auto_corr_vals[acorr_nm];
         float cfo = calculate_normalized_cfo(max_auto_corr_val);
         prepare_xcorr_input_array(d_p_in_buffer, p_in, p_offset);
         const int acorr_offset = acorr_nm - d_n_subcarriers;

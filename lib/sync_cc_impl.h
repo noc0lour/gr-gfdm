@@ -35,6 +35,7 @@ namespace gr {
         bool d_is_at_frame_start;
        int d_sync_fft_len;
        int d_block_len;
+       float d_thr_acorr;
        std::vector<gr_complex> d_known_preamble;
        std::string d_gfdm_tag_key;
 
@@ -43,7 +44,7 @@ namespace gr {
       void produce_output_frame(gr_complex* outbuf, const gr_complex*inbuf);
 
      public:
-      sync_cc_impl(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble,
+      sync_cc_impl(int n_subcarriers, int cp_length, int frame_len, std::vector<gr_complex> preamble, float thr_acorr,
                    const std::string &gfdm_tag_key);
       ~sync_cc_impl();
 
