@@ -122,6 +122,9 @@ namespace gr {
       add_item_tag(0, nitems_written(0),
                    pmt::string_to_symbol(d_gfdm_tag_key),
                    pmt::from_long(d_block_len));
+      add_item_tag(0, nitems_written(0),
+                   pmt::string_to_symbol("cfo"),
+                   pmt::from_long(d_kernel->get_cfo()));
     }
 
   } /* namespace gfdm */

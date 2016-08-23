@@ -74,6 +74,7 @@ namespace gr {
       memset(d_auto_corr_vals, 0, sizeof(gr_complex) * array_len);
       d_abs_auto_corr_vals  = (float*) volk_malloc(sizeof(float) * array_len, volk_get_alignment());
       memset(d_abs_auto_corr_vals, 0, sizeof(float) * array_len);
+      d_cfo = 0.0f;
 
       d_xcorr_vals = (gr_complex*) volk_malloc(sizeof(gr_complex) * 4 * n_subcarriers, volk_get_alignment());
       d_abs_xcorr_vals = (float*) volk_malloc(sizeof(float) * 2 * n_subcarriers, volk_get_alignment());
@@ -152,6 +153,7 @@ namespace gr {
       if(!is_tail_case && max_auto_corr_energy > d_thr_acorr){
         // derive CFO from correlation peak!
         float cfo = calculate_normalized_cfo(max_auto_corr_val);
+        d_cfo = cfo;
         prepare_xcorr_input_array(d_p_in_buffer, p_in, p_offset);
         const int acorr_offset = acorr_nm - d_n_subcarriers;
         const int res = find_cross_correlation_peak(d_p_in_buffer, d_abs_auto_corr_vals + acorr_offset, cfo);

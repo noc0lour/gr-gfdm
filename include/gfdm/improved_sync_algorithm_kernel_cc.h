@@ -55,6 +55,7 @@ namespace gr {
       std::vector<gr_complex> remove_cfo_preamble(std::vector<gr_complex> in_vec, const float cfo);
       std::vector<gr_complex> cross_correlate_preamble(std::vector<gr_complex> in_vec);
       std::vector<gr_complex> preamble();
+      float get_cfo(){return d_cfo;};
       void set_false_alarm_probability(float false_alarm_prob, int ninput_size);
       std::vector<gr_complex> input_buffer();
       std::vector<gr_complex> auto_corr_buffer();
@@ -68,6 +69,7 @@ namespace gr {
       int d_n_subcarriers;
       int d_cp_len;
       float d_thr_acorr;
+      float d_cfo;
       gr_complex* d_preamble;
       gr_complex* d_p_in_buffer;
       gr_complex* d_auto_corr_vals;
