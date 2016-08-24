@@ -21,6 +21,9 @@
 #ifndef INCLUDED_GFDM_CHANNEL_ESTIMATOR_CC_IMPL_H
 #define INCLUDED_GFDM_CHANNEL_ESTIMATOR_CC_IMPL_H
 
+#include <fftw3.h>
+#include <volk/volk.h>
+#include <pmt/pmt.h>
 #include <gfdm/channel_estimator_cc.h>
 
 namespace gr {
@@ -29,12 +32,19 @@ namespace gr {
     class channel_estimator_cc_impl : public channel_estimator_cc
     {
      private:
-       std::vector<gr_complex> d_known_preamble;
+       int d_n_timeslots;
+       int d_n_subcarriers;
+       int d_cp_len;
+       std::vector<gr_complex> d_preamble;
        std::string d_gfdm_sync_tag_key;
+       fftwf_plan d_preamble_fft_plan;
+       gr_complex* d_preamble_fft_in;
+       gr_complex* d_preamble_fft_out;
+       void remove_cfo(gr_complex* p_out, const gr_complex* p_in, const float cfo, const int ninput_size);
 
 
      public:
-      channel_estimator_cc_impl(int subcarriers, std::vector<gr_complex> preamble);
+      channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble);
       ~channel_estimator_cc_impl();
 
       // Where all the action really happens

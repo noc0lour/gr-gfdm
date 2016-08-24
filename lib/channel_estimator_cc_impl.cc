@@ -29,20 +29,28 @@ namespace gr {
   namespace gfdm {
 
     channel_estimator_cc::sptr
-    channel_estimator_cc::make(int subcarriers, std::vector<gr_complex> preamble)
+    channel_estimator_cc::make(int timeslots, int subcarriers, int cp_len, std::vector<gr_complex> preamble)
     {
       return gnuradio::get_initial_sptr
-        (new channel_estimator_cc_impl(subcarriers, preamble));
+        (new channel_estimator_cc_impl(timeslots, subcarriers, cp_len, preamble));
     }
 
     /*
      * The private constructor
      */
-    channel_estimator_cc_impl::channel_estimator_cc_impl(int subcarriers, std::vector<gr_complex> preamble)
+    channel_estimator_cc_impl::channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble)
       : gr::block("channel_estimator_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
-              gr::io_signature::make(1, 1, sizeof(gr_complex)))
-    {}
+              gr::io_signature::make(1, 1, sizeof(gr_complex))),
+      d_n_timeslots(n_timeslots),
+      d_n_subcarriers(n_subcarriers),
+      d_cp_len(cp_len)
+    {
+      set_output_multiple(d_n_timeslots*d_n_subcarriers);
+     
+
+
+    }
 
     /*
      * Our virtual destructor.
@@ -55,6 +63,7 @@ namespace gr {
     channel_estimator_cc_impl::forecast (int noutput_items, gr_vector_int &ninput_items_required)
     {
       /* <+forecast+> e.g. ninput_items_required[0] = noutput_items */
+      ninput_items_required[0] = noutput_items + 2*d_n_subcarriers + d_cp_len;
     }
 
     int
@@ -66,11 +75,13 @@ namespace gr {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
 
+
       consume_each (noutput_items);
 
       // Tell runtime system how many output items we produced.
       return noutput_items;
     }
+
 
   } /* namespace gfdm */
 } /* namespace gr */
