@@ -30,18 +30,21 @@ namespace gr
   namespace gfdm
   {
 
-    chanest_kernel::chanest_kernel(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gfdm_complex> preamble)
-      :d_n_timeslots(n_timeslots),
-      d_n_subcarriers(n_subcarriers),
-      d_cp_len(cp_len)
+    chanest_kernel::chanest_kernel(int n_subcarriers, std::vector<gfdm_complex> preamble):
+      d_n_subcarriers(n_subcarriers)
     {
       d_preamble_fft_in = (gfdm_complex*) volk_malloc(sizeof(gfdm_complex) * 2 * n_subcarriers, volk_get_alignment());
       d_preamble_fft_out = (gfdm_complex*) volk_malloc(sizeof(gfdm_complex) * 2 * n_subcarriers, volk_get_alignment());
       d_preamble_fft_plan = initialize_fft(d_preamble_fft_out, d_preamble_fft_in, 2 * n_subcarriers, true);
-      std::memcpy(d_preamble_fft_in, &preamble[0], sizeof(gfdm_complex) * 2 *n_subcarriers);
+      memcpy(d_preamble_fft_in, &preamble[0], sizeof(gfdm_complex) * 2 *n_subcarriers);
       fftwf_execute(d_preamble_fft_plan);
       d_preamble.resize(2*n_subcarriers);
-      std::memcpy(&d_preamble[0],d_preamble_fft_out,sizeof(gfdm_complex) * 2 *n_subcarriers);
+      memcpy(&d_preamble
+      std::cout << "known_preamble: ";
+      for (int i=0;i < 2*n_subcarriers;++i){
+        std::cout<<d_preamble[i];
+      }
+      std::cout<<std::endl;
     }
 
     chanest_kernel::~chanest_kernel()
@@ -49,6 +52,24 @@ namespace gr
       volk_free(d_preamble_fft_in);
       volk_free(d_preamble_fft_out);
     }
+    
+    void
+    chanest_kernel::get_channel_in_fdomain(gfdm_complex* channel_out, const gfdm_complex* preamble_in)
+    {
+      gfdm_complex* channel_tmp = (gfdm_complex*) volk_malloc(sizeof(gfdm_complex) * 2 * d_n_subcarriers, volk_get_alignment());
+      memcpy(d_preamble_fft_in, preamble_in, sizeof(gfdm_complex) * 2 * d_n_subcarriers);
+      fftwf_execute(d_preamble_fft_plan);
+      ::volk_32fc_x2_divide_32fc(channel_tmp,d_preamble_fft_out,&d_preamble[0],2*d_n_subcarriers);
+      //std::cout<<"channel_tmp: ";
+      //for (int i = 0;i<2*d_n_subcarriers;++i){
+      //  std::cout<<channel_tmp[i];
+      //}
+      //std::cout<<std::endl;
+      ::volk_32f_x2_add_32f((float*) channel_out,(float*) &channel_tmp[0], (float*) &channel_tmp[d_n_subcarriers], 2*d_n_subcarriers);
+      ::volk_32fc_s32fc_multiply_32fc(channel_out,channel_out,(gfdm_complex) 0.5, d_n_subcarriers);
+      volk_free(channel_tmp);
+    }
+
     void
     chanest_kernel::remove_cfo(gfdm_complex* p_out, const gfdm_complex* p_in, const float cfo, const int ninput_size)
     {

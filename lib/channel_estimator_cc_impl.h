@@ -24,7 +24,9 @@
 #include <fftw3.h>
 #include <volk/volk.h>
 #include <pmt/pmt.h>
+#include <gfdm/chanest_kernel.h>
 #include <gfdm/channel_estimator_cc.h>
+
 
 namespace gr {
   namespace gfdm {
@@ -35,16 +37,18 @@ namespace gr {
        int d_n_timeslots;
        int d_n_subcarriers;
        int d_cp_len;
+       int d_block_len;
+       int d_frame_len;
+       float d_cfo;
        std::vector<gr_complex> d_preamble;
-       std::string d_gfdm_sync_tag_key;
-       fftwf_plan d_preamble_fft_plan;
-       gr_complex* d_preamble_fft_in;
-       gr_complex* d_preamble_fft_out;
-       void remove_cfo(gr_complex* p_out, const gr_complex* p_in, const float cfo, const int ninput_size);
+       std::string d_gfdm_block_tag_key;
+       chanest_kernel* d_kernel;
+       void produce_output(gr_complex* out, const gr_complex* frame_in, const gr_complex* channel_taps, const int block_number);
+       
 
 
      public:
-      channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble);
+      channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, const std::string& gfdm_block_tag_key);
       ~channel_estimator_cc_impl();
 
       // Where all the action really happens

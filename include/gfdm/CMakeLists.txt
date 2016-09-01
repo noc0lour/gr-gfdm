@@ -39,5 +39,6 @@ install(FILES
     advanced_receiver_tsb_cc.h
     resource_mapper_kernel_cc.h
     resource_mapper_cc.h
+    chanest_kernel.h
     channel_estimator_cc.h DESTINATION include/gfdm
 )

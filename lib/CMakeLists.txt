@@ -43,6 +43,7 @@ list(APPEND gfdm_sources
     advanced_receiver_tsb_cc_impl.cc
     resource_mapper_kernel_cc.cc
     resource_mapper_cc_impl.cc
+    chanest_kernel.cc
     channel_estimator_cc_impl.cc)
 
 set(gfdm_sources "${gfdm_sources}" PARENT_SCOPE)

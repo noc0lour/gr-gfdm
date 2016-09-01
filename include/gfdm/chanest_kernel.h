@@ -42,14 +42,14 @@ namespace gr {
     public:
       typedef std::complex<float> gfdm_complex;
       typedef boost::shared_ptr<chanest_kernel> sptr;
+      void get_channel_in_fdomain(gfdm_complex* channel_out, const gfdm_complex* preamble_in);
+      void remove_cfo(gfdm_complex* p_out, const gfdm_complex* p_in, const float cfo, const int ninput_size);
 
-      chanest_kernel(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gfdm_complex> preamble);
+      chanest_kernel(int n_subcarriers, std::vector<gfdm_complex> preamble);
       ~chanest_kernel();
 
     private:
       int d_n_subcarriers;
-      int d_n_timeslots;
-      int d_cp_len;
       std::vector<gfdm_complex> d_preamble;
 
       fftwf_plan d_preamble_fft_plan;
@@ -57,7 +57,6 @@ namespace gr {
       gfdm_complex* d_preamble_fft_out;
 
       fftwf_plan initialize_fft(gfdm_complex* out_buf, gfdm_complex* in_buf, const int fft_size, bool forward);
-      remove_cfo(gfdm_complex* p_out, const gfdm_complex* p_in, const float cfo, const int ninput_size);
 
 
     };
