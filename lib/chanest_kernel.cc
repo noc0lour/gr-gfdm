@@ -39,7 +39,6 @@ namespace gr
       memcpy(d_preamble_fft_in, &preamble[0], sizeof(gfdm_complex) * 2 *n_subcarriers);
       fftwf_execute(d_preamble_fft_plan);
       d_preamble.resize(2*n_subcarriers);
-      memcpy(&d_preamble
       std::cout << "known_preamble: ";
       for (int i=0;i < 2*n_subcarriers;++i){
         std::cout<<d_preamble[i];
