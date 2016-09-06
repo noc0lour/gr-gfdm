@@ -46,7 +46,7 @@ namespace gr {
        * class. gfdm::channel_estimator_cc::make is the public interface for
        * creating new instances.
        */
-      static sptr make(int timeslots, int subcarriers, int cp_len, std::vector<gr_complex> preamble, const std::string& gfdm_block_tag_key="gfdm_block");
+      static sptr make(int timeslots, int subcarriers, int cp_len, std::vector<gr_complex> preamble_data, std::vector<gr_complex> preamble_f_taps, const std::string& gfdm_block_tag_key="gfdm_block");
     };
 
   } // namespace gfdm

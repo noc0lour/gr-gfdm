@@ -29,16 +29,16 @@ namespace gr {
   namespace gfdm {
 
     channel_estimator_cc::sptr
-    channel_estimator_cc::make(int timeslots, int subcarriers, int cp_len, std::vector<gr_complex> preamble, const std::string& gfdm_block_tag_key)
+    channel_estimator_cc::make(int timeslots, int subcarriers, int cp_len, std::vector<gr_complex> preamble_data, std::vector<gr_complex> preamble_f_taps, const std::string& gfdm_block_tag_key)
     {
       return gnuradio::get_initial_sptr
-        (new channel_estimator_cc_impl(timeslots, subcarriers, cp_len, preamble, gfdm_block_tag_key));
+        (new channel_estimator_cc_impl(timeslots, subcarriers, cp_len, preamble_data, preamble_f_taps, gfdm_block_tag_key));
     }
 
     /*
      * The private constructor
      */
-    channel_estimator_cc_impl::channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, const std::string& gfdm_block_tag_key)
+    channel_estimator_cc_impl::channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, std::vector<gr_complex> preamble_f_taps, const std::string& gfdm_block_tag_key)
       : gr::block("channel_estimator_cc",
               gr::io_signature::make(1, 1, sizeof(gr_complex)),
               gr::io_signature::make(1, 1, sizeof(gr_complex))),
@@ -50,7 +50,7 @@ namespace gr {
     {
       set_output_multiple(n_timeslots*n_subcarriers);
       set_tag_propagation_policy(TPP_DONT);
-      d_kernel = new chanest_kernel(n_subcarriers, preamble);
+      d_kernel = new chanest_kernel(n_subcarriers, preamble, preamble_f_taps);
       d_cfo = 0.0f;
       d_frame_len = d_block_len + cp_len + 2*n_subcarriers;
     }

@@ -48,7 +48,7 @@ namespace gr {
 
 
      public:
-      channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble, const std::string& gfdm_block_tag_key);
+      channel_estimator_cc_impl(int n_timeslots, int n_subcarriers, int cp_len, std::vector<gr_complex> preamble_data, std::vector<gr_complex> preamble_f_taps, const std::string& gfdm_block_tag_key);
       ~channel_estimator_cc_impl();
 
       // Where all the action really happens

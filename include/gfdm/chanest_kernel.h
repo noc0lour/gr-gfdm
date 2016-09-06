@@ -28,6 +28,7 @@
 #include <boost/shared_ptr.hpp>
 #include <fftw3.h>
 #include <stdexcept>
+#include <gfdm/receiver_kernel_cc.h>
 
 namespace gr {
   namespace gfdm {
@@ -45,18 +46,14 @@ namespace gr {
       void get_channel_in_fdomain(gfdm_complex* channel_out, const gfdm_complex* preamble_in);
       void remove_cfo(gfdm_complex* p_out, const gfdm_complex* p_in, const float cfo, const int ninput_size);
 
-      chanest_kernel(int n_subcarriers, std::vector<gfdm_complex> preamble);
+      chanest_kernel(int n_subcarriers, std::vector<gfdm_complex> preamble_data, std::vector<gfdm_complex> preamble_f_taps);
       ~chanest_kernel();
 
     private:
       int d_n_subcarriers;
-      std::vector<gfdm_complex> d_preamble;
-
-      fftwf_plan d_preamble_fft_plan;
-      gfdm_complex* d_preamble_fft_in;
-      gfdm_complex* d_preamble_fft_out;
-
-      fftwf_plan initialize_fft(gfdm_complex* out_buf, gfdm_complex* in_buf, const int fft_size, bool forward);
+      receiver_kernel_cc::sptr d_receiver_kernel;
+      std::vector<gfdm_complex> d_preamble_data;
+      std::vector<gfdm_complex> d_preamble_f_taps;
 
 
     };
