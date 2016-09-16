@@ -45,6 +45,7 @@ namespace gr
                                   std::vector<std::vector<gr_complex> > &sc_fdomain);
 
       void demodulate_block_ic_array(gr_complex *p_out, const gr_complex *p_in);
+      void demodulate_block_ic_array(gr_complex *p_out, const gr_complex *p_in, const gr_complex *channel_taps);
 
       gr_complex* d_freq_block;
       gr_complex* d_ic_time_buffer;

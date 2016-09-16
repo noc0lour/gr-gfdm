@@ -25,6 +25,7 @@
 #include <gnuradio/io_signature.h>
 #include "advanced_receiver_sb_cc_impl.h"
 #include <volk/volk.h>
+#include <pmt/pmt.h>
 
 namespace gr {
   namespace gfdm {
@@ -120,11 +121,20 @@ namespace gr {
     {
       const gr_complex *in = (const gr_complex *) input_items[0];
       gr_complex *out = (gr_complex *) output_items[0];
+      std::vector<tag_t> channel_tag;
+      std::vector<gr_complex> channel(d_n_timeslots);
 
       const int n_blocks = noutput_items / d_kernel->block_size();
 
       for (int i = 0; i < n_blocks; ++i) {
-        demodulate_block_ic_array(out, in);
+      get_tags_in_window(channel_tag,0,i*d_kernel->block_size(),(i+1)*d_kernel->block_size(),pmt::string_to_symbol("channel_taps"));
+        if (channel_tag.size() > 0)
+        {
+          channel = pmt::c32vector_elements(channel_tag.begin()->value);
+          demodulate_block_ic_array(out, in, &channel[0]);
+        }else{
+          demodulate_block_ic_array(out, in);
+        }
 
         in += d_kernel->block_size();
         out += d_kernel->block_size();
@@ -136,6 +146,21 @@ namespace gr {
     {
       d_kernel->fft_filter_downsample(d_freq_block, p_in);
       d_kernel->transform_subcarriers_to_td(p_out, d_freq_block);
+
+
+      for (int j = 0; j < d_ic_iter; ++j) {
+        map_symbols_to_constellation_points(d_ic_time_buffer, p_out);
+        d_kernel->cancel_sc_interference(d_ic_freq_buffer, d_ic_time_buffer, d_freq_block);
+        d_kernel->transform_subcarriers_to_td(p_out, d_ic_freq_buffer);
+      }
+    }
+
+    void advanced_receiver_sb_cc_impl::demodulate_block_ic_array(gr_complex *p_out, const gr_complex *p_in, const gr_complex *channel_taps)
+    {
+      d_kernel->fft_filter_downsample(d_freq_block, p_in);
+      d_kernel->transform_subcarriers_to_td(p_out, d_freq_block);
+      d_kernel->equalize_channel(p_out,p_in,channel_taps);
+
 
       for (int j = 0; j < d_ic_iter; ++j) {
         map_symbols_to_constellation_points(d_ic_time_buffer, p_out);

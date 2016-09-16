@@ -1,6 +1,6 @@
 /* -*- c++ -*- */
 /*
- * Copyright 2016 Andrej Rode.
+ * Copyright 2016 Andrej Rode, Johannes Demel.
  *
  * This file is part of GNU Radio
  *
@@ -302,6 +302,14 @@ namespace gr
       memcpy(d_in_fft_in, p_in, sizeof(gfdm_complex) * d_block_len);
       fftwf_execute(d_in_fft_plan);
       filter_subcarriers_and_downsample_fd(p_out, d_in_fft_out);
+    }
+
+    void
+    receiver_kernel_cc::equalize_channel(gfdm_complex* p_out, const gfdm_complex* p_in, const gfdm_complex* h_in)
+    {
+      for (int k = 0; k < d_n_subcarriers; ++k) {
+        ::volk_32fc_s32fc_divide_32fc(p_out,p_in,h_in[k],d_n_timeslots);
+      }
     }
 
     void

@@ -35,11 +35,7 @@ namespace gr
     {
       d_receiver_kernel = receiver_kernel_cc::sptr(new receiver_kernel_cc(2, n_subcarriers, 2, preamble_f_taps));
       d_preamble_data.resize(n_subcarriers);
-      std::cout << "known_preamble: ";
-      for (int i=0;i < 2*n_subcarriers;++i){
-        std::cout<<d_preamble_data[i];
-      }
-      std::cout<<std::endl;
+      memcpy(&d_preamble_data[0],&preamble_data[0],sizeof(gfdm_complex)*n_subcarriers);
     }
 
     chanest_kernel::~chanest_kernel()
@@ -54,11 +50,6 @@ namespace gr
       ::volk_32f_x2_add_32f((float*) received_preamble_data, (float*) received_preamble_data, (float*) &received_preamble_data[d_n_subcarriers],2*d_n_subcarriers);
       ::volk_32fc_s32fc_multiply_32fc(received_preamble_data, received_preamble_data, (gfdm_complex) (0.5f), d_n_subcarriers);
       ::volk_32fc_x2_divide_32fc(channel_out,received_preamble_data,&d_preamble_data[0],d_n_subcarriers);
-      //std::cout<<"channel_tmp: ";
-      //for (int i = 0;i<2*d_n_subcarriers;++i){
-      //  std::cout<<channel_tmp[i];
-      //}
-      //std::cout<<std::endl;
     }
 
     void
